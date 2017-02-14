@@ -1,0 +1,23 @@
+[
+  {
+    "id":"1",
+    "a": "1",
+    "b": "2",
+    "c": "http://api.openweathermap.org/data/2.5/forecast/mumbai?id=524901&APPID=e0d5c571eb39e0ba37f4f6c212fd439d",
+    "d": {}
+  },
+  {
+    "id":"2",
+    "a": "3",
+    "b": "4",
+    "c": "http://api.openweathermap.org/data/2.5/forecast/delhi?id=524901&APPID=e0d5c571eb39e0ba37f4f6c212fd439d",
+    "d": {}
+  },
+  {
+    "id":"3",
+    "a": "5",
+    "b": "6",
+    "c": "http://api.openweathermap.org/data/2.5/forecast/goa?id=524901&APPID=e0d5c571eb39e0ba37f4f6c212fd439d",
+    "d": {}
+  }
+]
