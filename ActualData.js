@@ -56,7 +56,7 @@ class ActualData extends Component {
         var a = target;
         if(a == "")
         return;
-        console.log(a,i);
+        //console.log(a,i);
         var color;
         let alpha  = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
             if(a[0]!= '=' || a[1] != '(' || a[a.length - 1]!=')' )
@@ -75,7 +75,7 @@ class ActualData extends Component {
     }
 
     tempfunc(h,a,b,c,d){
-        console.log(h,a,b,c,d);
+        //console.log(h,a,b,c,d);
           this.props.applyF(h,a,b,c,d);  
     }
 
@@ -88,7 +88,15 @@ class ActualData extends Component {
      var fxBar = this.refs.theInput;
      a.contentEditable = true;
      var stream$ = Observable.fromEvent(a,'dblclick');
-     stream$.subscribe((e) => { var rowno = Number(e.target.className[1]); var data = this.props.data[rowno -1]["d"]["fx"]; this.props.inputEdit(data);  });
+     stream$.subscribe((e) => {
+          var rowno = Number(e.target.className[1]);
+          var header = (e.target.className[0].toLowerCase());
+          if(this.props.data[rowno -1][header]["fx"]) 
+            var data = this.props.data[rowno -1][header]["fx"];
+          else
+              var data = this.props.data[rowno -1][header][header];
+          this.props.inputEdit(data);
+        });
     }
   }
 
@@ -120,7 +128,10 @@ class ActualData extends Component {
         this.props.addColData(col);
     }
 
-    
+    handleChange(event){
+       // this.props.vad = event.target.innerText;
+       this.props.data
+    }
     
     // submitForm = (e) => {
     //     e.preventDefault();
@@ -150,7 +161,7 @@ class ActualData extends Component {
     }
 
     renderData = (data,i) => {
-        console.log(data);
+        console.log("data=>",data);
         let alpha = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
         var b = [];
         var a = [];
@@ -177,7 +188,9 @@ class ActualData extends Component {
                 return (<td
                 ref={function(e){if(e) e.contentEditable=true;}}
                 key={s}
+                ref={this.refCallback.bind(this)}
                 style = {{color:dupdata[h]['color']}}
+                 className={s}
                 onFocus = {this.checkFocus.bind(this)}
                 onBlur = {this.checkBlur.bind(this,{h},i,j)}
             >{y}</td>);   
@@ -195,7 +208,7 @@ class ActualData extends Component {
                 <button id="addRow" onClick={this.addRow.bind(this)}>ADD ROW</button>
                 <button id="addCol" onClick={this.addColumn.bind(this)}>ADD COLUMN</button>
                 <form onSubmit={this.submitForm}>
-                    <input ref="theInput" placeholder="=fx" value= {this.props.vad}/>
+                    <input ref="theInput" placeholder="=fx" value= {this.props.vad} onChange={this.handleChange.bind(this)}/>
                     <button type="Submit">Submit</button>
                 </form>
                 <table>

@@ -46,7 +46,7 @@ export default function(state = [], action) {
                     var stockStream$ = rxFetch(urla).json();
                     var stream2$ = stockStream$.subscribe(response =>{row['c'] = response["cod"]; var x = {}; x['c']=row['c']; row['c'] = x;console.log("row=>",row); });
                    var stream3$ = Observable.of(data).subscribe(data => {return data});
-                   
+                   var source = Observable.concat(stream2$, stream3$).subscribe(data => {return data;});
            })
                   {
                        // console.log(stream2$);
