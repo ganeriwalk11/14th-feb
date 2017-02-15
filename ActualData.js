@@ -2,17 +2,19 @@ import React, { Component } from 'react';
 import ReactDOM from 'react-dom';
 import { connect } from 'react-redux';
 import { bindActionCreators } from 'redux';
-import { checkIDAction } from '../actions/validations';
-import { checkIndexAction } from '../actions/validations';
+import Rx from "rxjs";
+import { Observable } from 'rxjs/Observable';
+
 import { inputEdit } from '../actions/validations';
 import { applyF } from '../actions/index';
 import rootReducer from '../reducers/index';
 import { postData } from '../actions/index';
 import { addData } from '../actions/index';
+import { addColData } from '../actions/index';
 import { checkIntegerAction } from '../actions/index';
+
 require("babel-polyfill");
-import Rx from "rxjs";
-import { Observable } from 'rxjs/Observable';
+
 
 class ActualData extends Component {
     constructor(props) {
@@ -25,24 +27,38 @@ class ActualData extends Component {
     }
 
     checkBlur(h,i,j,event){
-        var a = event.target.innerText;
-        var head = h.h;
-        if(this.props.data[i][head][head] !== a)
+        var head = Object.keys(this.props.data[0]);
+        let l = head.indexOf(h.h);
+        var target = event.target.innerText;
+        if(l <2 )
         {
-            if( this.x[this.x.length - 1] != a)
+            var a = event.target.innerText;
+            var head = h.h;
+            if(this.props.data[i][head][head] !== a)
             {
-                this.props.checkIntegerAction(i,j,h,this.props.data,a);
+                if( this.x[this.x.length - 1] != a)
+                {
+                    this.props.checkIntegerAction(i,j,h,this.props.data,a);
+                }
+                if(this.props.data[i][head]["dep"] >-1)
+                {
+                    this.props.applyF(this.props.data[i]["d"]["fx"],this.props.data[i][head]["dep"],this.props.data,"red");
+                }       
             }
-            if(this.props.data[i][head]["dep"] >-1){
-            this.props.applyF(this.props.data[i]["d"]["fx"],this.props.data[i][head]["dep"],this.props.data,"red");
-    }}
+        }
+    
+    else{
+        this.checkFormulaBlur(h,i,target);
+    }
     }
 
-        async checkFormulaBlur(i,event){
-        var a = event.target.innerText;
+        checkFormulaBlur(h,i,target){
+        var a = target;
+        if(a == "")
+        return;
+        console.log(a,i);
+        var color;
         let alpha  = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
-        if(a != '')
-        {
             if(a[0]!= '=' || a[1] != '(' || a[a.length - 1]!=')' )
             {
                 console.log("Invalid format, the valid format is: =(op1 operand op2)");
@@ -51,83 +67,19 @@ class ActualData extends Component {
                 console.log("Operands are out of bounds");
             }
             else{
-                var color;
                 color = "red";
-               await this.tempfunc(a,i,this.props.data,color);
+                this.tempfunc(h.h,a,i,this.props.data,color);
                // setTimeout((this.props.applyF(a,i,this.props.data,"black")),3000);
                 
             }
-        }
     }
 
-    tempfunc(a,b,c,d){
-          this.props.applyF(a,b,c,d);
-            
+    tempfunc(h,a,b,c,d){
+        console.log(h,a,b,c,d);
+          this.props.applyF(h,a,b,c,d);  
     }
 
-    renderHead = (data) => {
-        var dupData = data;
-        if(dupData[0])
-        {
-        var head = Object.keys(dupData[0]);
-        var len = head.length;
-        if(len>0)
-        {
-        let alpha = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
-        var a = [<th key="blank"></th>];
-        for(var i=0;i<len-1;i++){
-                a.push(<th key={i}>{alpha[i]}</th>);
-        }
-        // this.x.push(1);
-             return (<tr key="header">{a}</tr>);
-        }
-        }
-    }
-
-    renderData = (data,i) => {
-        let alpha = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
-        let len = this.props.data.length;
-        var b = [];
-        var a = [];
-        var dupdata = data;
-        var head = Object.keys(dupdata);
-        if(len != 0)
-        {
-        a.push(head.map((h,j) => {
-            var s = alpha[j-1] + (i+1);
-            if(h != "id" && h!='d')
-            {
-                var x = dupdata[h];
-                var y = x[h];
-                return (<td
-                ref={function(e){if(e) e.contentEditable=true;}}
-                key={s}
-                style = {{color:dupdata[h]['color']}}
-                onFocus = {this.checkFocus.bind(this)}
-                onBlur = {this.checkBlur.bind(this,{h},i,j)}
-            >{y}</td>);
-            }   
-            else if(h == 'id')
-            { 
-                return (<td
-                        key={s}
-                        //ref={function(e){if(e) e.contentEditable=true;}}
-                        >{dupdata[h]}</td>);
-            }
-        }))
-        var s = "D" + (i+1);
-        a.push(<td 
-                ref={function(e){if(e) e.contentEditable=true;}}
-                key={s}
-                className={s}
-                onBlur = {this.checkFormulaBlur.bind(this,i)}
-                 ref={this.refCallback.bind(this)} 
-                style = {{color:dupdata['d']['color']}}                
-                >{dupdata["d"]["ans"]}</td>)
-        return (<tr key={i}>{a}</tr>);
-    }
-}
-
+   
 
  refCallback(item) {
     if (item) {  
@@ -147,10 +99,28 @@ class ActualData extends Component {
 
 
     addRow = () => {
-        var add = {"id": this.props.data.length + 1,"a": "","b": "","c":""};
-        var data = this.props.data;
+        let alpha = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+        let dupdata = this.props.data;
+        let head = Object.keys(dupdata[0]);
+        let add = {};
+        head.map(function(header){
+            if(header == 'd')
+            add[header] = {};
+            else
+            add[header] =  "";
+        })
         this.props.addData(add);
     }
+
+    addColumn = () => {
+        let alpha = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+        let dupdata = this.props.data;
+        let head = Object.keys(dupdata[0]);
+        let col  = alpha[head.length];
+        this.props.addColData(col);
+    }
+
+    
     
     // submitForm = (e) => {
     //     e.preventDefault();
@@ -160,12 +130,70 @@ class ActualData extends Component {
     //     this.props.applyF(fx,l);
     // }
 
+ renderHead = (data) => {
+        var dupData = data;
+        if(dupData[0])
+        {
+        var head = Object.keys(dupData[0]);
+        var len = head.length;
+        if(len>0)
+        {
+        let alpha = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+        var a = [<th key="blank"></th>];
+        for(var i=0;i<len;i++){
+                a.push(<th key={i}>{alpha[i]}</th>);
+        }
+        // this.x.push(1);
+             return (<tr key="header">{a}</tr>);
+        }
+        }
+    }
+
+    renderData = (data,i) => {
+        console.log(data);
+        let alpha = ['A','B','C','D','E','F','G','H','I','J','K','L','M','N','O','P','Q','R','S','T','U','V','W','X','Y','Z'];
+        var b = [];
+        var a = [];
+        var q = [];
+        var y = [];
+        var dupdata = data;
+        var head = Object.keys(dupdata);
+        let len = dupdata.length;
+        if(len != 0)
+        {
+            a.push(i+1);
+            a.push(head.map((h,j) => {
+            var s = alpha[j] + (i+1);
+            if(dupdata[h] != "")
+                y = dupdata[h][h];
+                else{
+                    q = h;
+                    var z = {};
+                    z[h] = "";
+                    dupdata[h] = z;
+                    y = dupdata[h][h];
+                }      
+                //console.log(h,y);
+                return (<td
+                ref={function(e){if(e) e.contentEditable=true;}}
+                key={s}
+                style = {{color:dupdata[h]['color']}}
+                onFocus = {this.checkFocus.bind(this)}
+                onBlur = {this.checkBlur.bind(this,{h},i,j)}
+            >{y}</td>);   
+        }))
+
+        return (<tr key={i}>{a}</tr>);
+    }
+}
+
 
     render() {
         return (
             <div>
                 <button id="save" onClick={this.saveData.bind(this)}>SAVE</button>
                 <button id="addRow" onClick={this.addRow.bind(this)}>ADD ROW</button>
+                <button id="addCol" onClick={this.addColumn.bind(this)}>ADD COLUMN</button>
                 <form onSubmit={this.submitForm}>
                     <input ref="theInput" placeholder="=fx" value= {this.props.vad}/>
                     <button type="Submit">Submit</button>
@@ -188,12 +216,11 @@ function mapStateToProps(state) {
 
 function mapDispatchToProps(dispatch) {
     return {
-        //filterState: bindActionCreators(filterState, dispatch),
         checkIntegerAction: bindActionCreators(checkIntegerAction, dispatch),
-        checkIDAction: bindActionCreators(checkIDAction, dispatch),
         postData: bindActionCreators(postData,dispatch),
         applyF: bindActionCreators(applyF,dispatch),
         addData: bindActionCreators(addData,dispatch),
+        addColData: bindActionCreators(addColData,dispatch),
         inputEdit: bindActionCreators(inputEdit,dispatch)
     };
 }
