@@ -26,32 +26,40 @@ export default function(state = [], action) {
           var len = head.length;
           var data = action.payload;
           var q = [];
-          data.map(function(row){
+          data.map(function(row,returnCallback){
             var w = 0;
              for(var i=0;i<len;i++){
-                  // if(i == 3)
-                  // {
-                  //   var urla = row[head[i]];
-                  //   var stockStream$ = rxFetch(urla).json();
-                  //  // console.log(stockStream$);
-                  //   var stream2$ = stockStream$.subscribe(response =>{row['c'] = response["cod"]; var x = {}; x['c']=row['c']; row['c'] = x; });
-                  //       //console.log(i,q);
-                  //       //row[head[i]]= response
-                  //     // stream2$.map((data) => console.log(data.response));
-                  // }
-                  //else {
-                  var t = head[i];
+                  if(i != 2)
+                  {
+                      var t = head[i];
                   var b = row[head[i]];
                   var x = {};
                   x[t] = b;
                   row[head[i]] = x;
-              //  }
+                  }
             }
           });
-         //  console.log(data);
-        return (data);
+           //console.log(data);
+
+           data.map(function(row){
+                    var urla = row[head[i]];
+                    var stockStream$ = rxFetch(urla).json();
+                    var stream2$ = stockStream$.subscribe(response =>{row['c'] = response["cod"]; var x = {}; x['c']=row['c']; row['c'] = x;console.log("row=>",row); });
+                   var stream3$ = Observable.of(data).subscribe(data => {return data});
+                   
+           })
+                  {
+                       // console.log(stream2$);
+                        //console.log(i,q);
+                        //row[head[i]]= response
+                      // stream2$.map((data) => console.log(data.response));
+                  }
+          // returnCallback(data);
+        //return (data);
         break;
       }
+
+      
 
       case ADD_DATA:{ 
         state = state.concat(action.payload);
@@ -99,7 +107,8 @@ export default function(state = [], action) {
            var data = [...state];
            data[op2i][head[op1j]]["dep"] = i;
            data[op2i][head[op2j]]["dep"] = i;
-           data[i][header] = {"ans" : ans , "fx": action.payload.a,"color": color};
+           data[i][header] = {  "fx": action.payload.a,"color": color};
+           data[i][header][header] = ans;
            console.log(data);
            return data;
       }
@@ -107,3 +116,8 @@ export default function(state = [], action) {
 
   return state;
 }
+
+
+function returnCallback(data){
+       return (data);
+      }
